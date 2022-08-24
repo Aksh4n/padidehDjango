@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<br>
+<br>
+<br>
+<br>
+
+<style>
+  .bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+  }
+
+  .b-example-divider {
+    height: 3rem;
+    background-color: rgba(0, 0, 0, .1);
+    border: solid rgba(0, 0, 0, .15);
+    border-width: 1px 0;
+    box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+  }
+
+  .b-example-vr {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 100vh;
+  }
+
+  .bi {
+    vertical-align: -.125em;
+    fill: currentColor;
+  }
+
+  .nav-scroller {
+    position: relative;
+    z-index: 2;
+    height: 2.75rem;
+    overflow-y: hidden;
+  }
+
+  .nav-scroller .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    padding-bottom: 1rem;
+    margin-top: -1px;
+    overflow-x: auto;
+    text-align: center;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+</style>
+
+<br>
+<br>
+
+
+<div  class="container">
+<main>
+<div class="py-5 text-center">
+  <h2> فرم تکمیل خرید</h2>
+  <p class="lead">لطفا فرم زیر را تکمیل کنید . قبل از اتصال به درگاه بانک لطفا سبد خرید و مبلغ نهایی خود را چک کنید</p>
+</div>
+
+<div class="row g-5">
+  <div class="col-md-5 col-lg-4 order-md-last">
+    <h4 class="d-flex justify-content-between align-items-center mb-3">
+      <span class="text-primary">سبد خرید</span>
+      <span class="badge bg-primary rounded-pill">{{cartItems}}</span>
+    </h4>
+    {% for item in items %}
+    <ul class="list-group mb-3">
+      <li class="list-group-item d-flex justify-content-between lh-sm">
+        <div>
+          <h6 class="my-0">{{item.product.name}}</h6>
+          <small class="text-muted">{{item.quantity}}</small>
+          <br>
+          <small class="text-muted">{{item.option}}</small>
+
+        </div>
+        <span class="text-muted">${{item.product.price|floatformat:2}}</span>
+      </li>
+      {% endfor %}
+      <li class="list-group-item d-flex justify-content-between bg-light">
+        <div class="text-success">
+          <h6 class="my-0">تخفیف</h6>
+          <small id="code"></small>
+        </div>
+        <span id="dis" class="text-success">−0t</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span>مبلغ نهایی (تومان)</span>
+        <strong id="totalpay">{{order.get_cart_total|floatformat:2}}t</strong>
+      </li>
+    </ul>
+
+    <form method="post" action="{% url 'discount' %}" id="formdis" class="card p-2">
+      {% csrf_token %}
+      <div class="input-group">
+        <input type="text" name="code" class="form-control" placeholder="کد تخفیف">
+        <button type="submit" class="btn btn-secondary">اعمال</button>
+      </div>
+    </form>
+</div>
+  <div class="col-md-7 col-lg-8">
+    <h4 class="mb-3"> </h4>
+    <form id="check-form" method="post" class="card p-2" novalidate>
+
+      {% csrf_token %}
+      {{form.as_p}}
+
+
+      <hr class="my-4">
+
+      <button class="w-100 btn btn-primary btn-lg" type="submit">پرداخت</button>
+    </form>
+  </div>
+</div>
+</main>
+</div>
+
+
+<script src="https://getbootstrap.com/docs/5.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'assets/js/cart.js' %}"></script>
+<script>
+  var text1 = document.getElementById("check-form").innerHTML; 
+  var result1 = text1.replace(/items:/gi, "").replace(/customer:/gi, "").replace(/complete:/gi, "").replace(/transaction id:/gi, "").replace(/First name:/gi, "نام").replace(/Last name:/gi, "نام خانوادگی").replace(/City:/gi, "شهر").replace(/State:/gi, "استان").replace(/Phone:/gi, "شماره همراه").replace(/Email:/gi, "ایمیل").replace(/Address:/gi, "آدرس").replace(/Postal code:/gi, "کد پستی");
+  document.getElementById("check-form").innerHTML = result1;
+</script>
+
+
+<script>
+  var dis = document.getElementById('formdis');
+  dis.addEventListener("submit",submitHandler);
+  function submitHandler(e) {
+    var serializedData = $(this).serialize();
+    e.preventDefault();
+    $.ajax({
+        type: 'POST' , 
+        url : '{% url "discount" %}',
+        data: serializedData  ,
+        dataType: 'json',
+        success: function (data) {
+                $("#formdis").trigger('reset');
+                var discount = data.discount
+                var code = data.code
+                var total = data.msg
+                console.log(total)
+                document.getElementById('totalpay').textContent = total
+                document.getElementById('code').textContent = code
+                document.getElementById('dis').textContent = discount
+                alert('کد تخفیف اعمال شد')
+                
+                
+
+      
+    }
+ })
+}
+
+</script>
+<script>
+  var check = document.getElementById('check-form');
+  check.addEventListener("submit",submitHandler);
+  function submitHandler(e) {
+    var serializedData = $(this).serialize();
+    e.preventDefault();
+    $.ajax({
+        type: 'POST' , 
+        url : '{% url "checkout" %}',
+        data: serializedData  ,
+        dataType: 'json',
+        success: function (data) {
+          if (data.msg === 'success'){
+            $("#check-form").trigger('reset');
+                alert('سفارش شما با موفقیت ثبت شد')
+
+          }
+          else {
+            alert('مشکلی پیش آمده . دوباره امتحان کنید')
+          }
+                
+
+      
+    }
+ })
+}
+
+</script>
+
+
+{% endblock content %}

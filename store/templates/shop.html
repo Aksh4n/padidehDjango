@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script type="text/javascript">
+    var user = '{{request.user}}'
+
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getToken('csrftoken')
+
+    function getCookie(name) {
+        // Split cookie string and get all individual name=value pairs in an array
+        var cookieArr = document.cookie.split(";");
+
+        // Loop through the array elements
+        for(var i = 0; i < cookieArr.length; i++) {
+            var cookiePair = cookieArr[i].split("=");
+
+            /* Removing whitespace at the beginning of the cookie name
+            and compare it with the given string */
+            if(name == cookiePair[0].trim()) {
+                // Decode the cookie value and return
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+
+        // Return null if not found
+        return null;
+    }
+    var cart = JSON.parse(getCookie('cart'))
+
+    if (cart == undefined){
+        cart = {}
+        console.log('Cart Created!', cart)
+        document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
+    }
+    console.log('Cart:', cart)
+
+</script>
+<script>
+  function reloadFunction(){
+   $("#cart-total").load(location.href + " #cart-total");
+ console.log('cart-total works');
+  }
+</script>
+<script>
+  function reloadFunction2(){
+    location.reload()
+  }
+</script>
+
+
+
+
+<!-- 
+<div id="cart" class="modal fade " tabindex="-1">
+    <div  class="modal-dialog modal-xl">
+      <div  class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">سبد خرید</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div  class="modal-body">
+            
+            <section  class="h-100" style="background-color: #eee;">
+                <div  class="container h-100 py-5">
+                  <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-10">
+              
+                      <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-normal mb-0 text-black">لیست خریدها</h3>
+                        
+                        <button onclick="reloadFunction2()" class="btn btn-secondary" >به روز رسانی</button>
+                      </div>
+                      {% for item in items %}
+
+                      <div class="card rounded-3 mb-4">
+                        <div class="card-body p-4">
+                          <div class="row d-flex justify-content-between align-items-center">
+                            <div class="col-md-2 col-lg-2 col-xl-2">
+                              <img
+                                src="{{item.product.imageURL}}"
+                                class="img-fluid rounded-3" alt="{{item.product.name}}">
+                            </div>
+                            
+                            <div class="col-md-3 col-lg-3 col-xl-3">
+                              <p class="lead fw-normal mb-2">{{item.product.name}}</p>
+                              <form id="{{item.product.name}}" action="{% url 'getvar' %}" method="post">
+                                {% csrf_token %}
+                              {% for o in item.product.option_set.all %}
+                              {% if o %}
+                              
+                                  <p  id="t{{item.product.id}}">
+                                    <span style="font-weight:bold ;" class="text-muted">گزینه ها </span>
+                                    <select   name="option" class="form-select">
+                                      <option value="{{o.op1}}">{{o.op1}}</option>
+                                      <option value="{{o.op2}}">{{o.op2}}</option>
+                                      <option value="{{o.op3}}">{{o.op3}}</option>
+                                      <option value="{{o.op4}}">{{o.op4}}</option>
+                                      <option value="{{o.op5}}">{{o.op5}}</option>
+                                    </select>
+                                    </p>
+                              
+                              
+                              <button id="button{{item.product.name}}"  type="submit"  data-product="{{item.product.id}}" data-action="post"  class="btn btn-primary update-cart visually-hidden">
+                                <div id="final{{item.product.name}}">{{o.op1}}</div>
+                              </button>
+                              {% endif %}
+                              {% endfor %}
+                              </form>
+
+        
+                            </div>
+      
+
+
+                            <div class="col-md-3 col-lg-3 col-xl-2">
+                              <p id="c{{item.product.id}}" >{{item.quantity}}</p>
+                              <div>
+                                <a  id="out" data-product="{{item.product.id}}" data-action="add" class="chg-quantity btn btn-outline-success mt-auto update-cart add-btn"  ><i class="bi bi-plus-circle-fill"></i></a>
+                            
+                                <a  id="out" data-product="{{item.product.id}}" data-action="remove" class="chg-quantity btn btn-outline-danger mt-auto update-cart add-btn" ><i style="color:red;" class="bi bi-dash-circle-fill"></i></a>
+                              </div>
+                            </div>
+                            <script>
+  
+                              document.addEventListener("click", function(){
+                            
+                              $("#c{{item.product.id}}").load(location.href + " #c{{item.product.id}}");
+                              $("#totalpay").load(location.href + " #totalpay");
+                            
+                            
+                               });
+                            
+                            
+                            </script>                            
+
+                            <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                              <h5 class="mb-0">{{item.product.price|floatformat:2}}t</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {% endfor %}
+              
+
+                      <div class="card">
+                        <div class="card-body">
+                          <button id="totalpay" style="width:100%; color:white; font-weight:bold;" type="button" class="btn btn-dark btn-lg btn-block">مجموع سبد : {{order.get_cart_total|floatformat:2}}t</button>
+                        </div>
+                      </div>
+                    
+
+
+              
+                      <div class="card">
+                        <div class="card-body">
+                          <a href="{% url 'checkout' %}" style="width:100%; color:white; font-weight:bold;" type="button" class="btn btn-warning btn-lg btn-block">ادامه و پرداخت</a>
+                        </div>
+                      </div>
+              
+                    </div>
+                  </div>
+                </div>
+              </section>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  -->
+
+<!-- Header-->
+<header   style="background-image: url({% static 'assets/img/backnull.jpg' %})" data-aos="fade-in" class="bg-dark py-5">
+  <div  class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">پدیده فوم </h1>
+          <p class="lead fw-normal text-white-50 mb-0"></p>
+      </div>
+      <br>
+      <form dir="rtl" value="{{request.GET.q}}" action="{% url 'search' %}" class="d-flex ">
+        <input name="q" value="{{request.GET.q}}" class="form-control me-2" type="search" placeholder="جستجوی محصول مورد نظر" aria-label="Search">
+        <button  class="btn btn-success" type="submit">جستجو</button>
+      </form>
+  </div>
+
+</header>
+<!--
+<div data-aos="fade-up" style="width: 30%; float: right;" class="btn-group m-1">
+  <button type="button" class="btn btn-dark  dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+    Order By
+  </button>
+  <ul style="width: 50%;" class="dropdown-menu">
+    <li class="dropdown-item"><a  href="?sort=l2h">Price:--low to high</a></li>
+    <li class="dropdown-item"><a  href="?sort=h2l">Price:-- high to low</a></li>
+  </ul>
+</div>
+
+-->
+{% if user.is_authenticated %}
+
+<a href="{% url 'cart' %}"><button id="cartinfo" style="width: 25%;" class="btn btn-success fixed-bottom mb-2 m-1"  data-bs-toggle="modal" data-bs-target="#cart">
+  <i class="bi-cart-fill me-1"></i>
+  سبد خرید
+  <span  id="cart-total" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" style="font-size:medium ;">{{cartItems}}</span>
+</button></a>
+{% endif %}
+
+<!-- Section-->
+<style>
+
+.list {
+  display: flex;
+  overflow-x: auto;
+
+
+  /* momentum scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+
+  /* scroll snapping */
+  scroll-snap-type: x mandatory;
+}
+.item:not(:last-child) { margin-right: 15px; }
+
+
+
+.item {
+  flex-shrink: 0;
+
+  /* scroll snapping */
+  scroll-snap-align: start;
+
+  /* maybe this will work in the future 🤷‍♂️ */
+  scroll-snap-stop: always;
+}
+
+
+</style>
+<style>
+.prev,
+.next {
+  position: absolute;
+  top: 670px;
+  cursor: pointer;
+  font-size: 60px;
+  color: #181818;
+}
+
+.prev {
+  left: 20px;
+}
+
+.next {
+  right: 20px;
+}
+.section-title {
+  text-align: center;
+  padding-bottom: 30px;
+}
+.section-title h2 {
+  font-size: 32px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  position: relative;
+  color: #45505b;
+}
+.section-title h2::before {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 120px;
+  height: 1px;
+  background: #ddd;
+  bottom: 1px;
+  left: calc(50% - 60px);
+}
+.section-title h2::after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: #0563bb;
+  bottom: 0;
+  left: calc(50% - 20px);
+}
+
+</style>
+{% if cat %}
+<section id="speakers" class=" py-5">
+
+  <h2 class="section-title" data-aos="fade-up" style="font-weight: bold;">دسته بندی ها</h2>
+      <div  class="list gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-5 ">
+          {% for x in cat %}
+            <div class="item col-lg-4 col-md-6">
+              <div class="speaker" data-aos="fade-up" data-aos-delay="100">
+                <img src="{{x.image.url}}" alt="Speaker 1" class="img-fluid">
+                <div class="details">
+                  <h3><a href="http://127.0.0.1:8080/searchc/?q={{x}}">{{x}}</a></h3>
+                </div>
+              </div>
+            </div>
+
+          
+        
+          {% endfor %}
+          
+
+      </div>
+</section>
+{% endif %}
+
+{% if new %}
+<section id="list" class=" py-5">
+
+  <h2 class="section-title" data-aos="fade-up" style="font-weight: bold;">جدیدترین محصولات</h2>
+      <div id="list" class="list gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-5 ">
+
+          {% for p in new %}
+          <div id="list"  data-aos="fade-up" class="item col mb-5">
+              <div class="card h-100">
+                  <!-- Sale badge-->
+                  <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">{{p.category}}</div>
+                  <!-- Product image-->
+                  <img class="card-img-top"  src="{{p.imageURL}}" alt="..." />
+                  <!-- Product details-->
+                  <div class="card-body p-4">
+                      <div class="text-center">
+                          <!-- Product name-->
+                          <h5 class="fw-bolder">{{p.name}}</h5>
+                          <!-- Product reviews-->
+                          <div>{{p.info}}</div>
+                          <div class="d-flex justify-content-center small text-warning mb-2">
+                            {% for star in product.star_set.all %}
+                              <div class="bi-star-fill"></div>
+                              {% endfor %}
+                          </div>
+                          <!-- Product price-->
+                          {% if p.price_before %}
+                          <span class="text-decoration-line-through">{{p.price_before}}t</span>
+                        {% endif %}  
+
+                          {{p.price}}t
+                      </div>
+                  </div>
+                  <!-- Product actions-->
+                  
+
+                  <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                   
+                      <div class="text-center">
+                        {% if user.is_authenticated %}
+                        <a onclick="reloadFunction()" data-product="{{p.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn"><i class="bi-cart-fill me-1"></i>افزودن به </a>
+                        {% else %}
+                        <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب</a>
+                        {%endif%}
+                        <button class="btn btn-outline-primary" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#box{{p.id}}" ><i class="bi bi-eye-fill"></i></button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+        
+          {% endfor %}
+          
+
+      </div>
+</section>
+{% endif %}
+<!-- 
+<a type="button" id="slide" class='prev'><i class="bi bi-arrow-left-circle"></i></a>
+<a type="button" id="slideBack" class='next'><i class="bi bi-arrow-right-circle"></i></a>
+
+-->  
+
+<!-- Section-->
+
+<section  class=" py-5">
+  <h2 class="section-title" data-aos="fade-up" style="font-weight: bold;">محصولات</h2>
+  <div class="container  px-4 px-lg-5 mt-5">
+      <div class=" row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+          {% for product in products %}
+
+          <div  data-aos="fade-up" class="col mb-5">
+              <div class="card h-100">
+                  <!-- Sale badge-->
+                  <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">{{product.category}}</div>
+                  <!-- Product image-->
+                  <img class="card-img-top"  src="{{product.imageURL}}" alt="..." />
+                  <!-- Product details-->
+                  <div class="card-body p-4">
+                      <div class="text-center">
+                          <!-- Product name-->
+                          <h5 class="fw-bolder">{{product.name}}</h5>
+                          <!-- Product reviews-->
+                          <div>{{product.info}}</div>
+                          <div class="d-flex justify-content-center small text-warning mb-2">
+                            {% for star in product.star_set.all %}
+                              <div class="bi-star-fill"></div>
+                              {% endfor %}
+                          </div>
+                          <!-- Product price-->
+                          {% if product.price_before %}
+                          <span class="text-decoration-line-through">{{product.price_before}}t</span>
+                        {% endif %}  
+
+                          {{product.price}}t
+                      </div>
+                  </div>
+                  <!-- Product actions-->
+                  
+
+                  <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                    
+                      <div class="text-center">
+                        {% if user.is_authenticated %}
+                        <a onclick="reloadFunction()" data-product="{{product.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn" ><i class="bi-cart-fill me-1"></i>افزودن به</a>
+                        {% else %}
+                        <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب</a>
+                        {% endif %}
+                        <button class="btn btn-outline-primary" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#box{{product.id}}"><i class="bi bi-eye-fill"></i></button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+
+      </div>
+  </div>
+</section>        
+
+
+
+
+{% for product in products %}
+<div id="box{{product.id}}" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <section class="py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="row gx-4 gx-lg-5 align-items-center">
+                <div class="col-md-6">
+                      <a href="{{product.imageURL}}"  class="portfolio-lightbox" ><img class="card-img-top mb-5 mb-md-0" src="{{product.imageURL}}" alt="..." /></a>
+
+                  <div class="row">
+                  {% for i in product.extraimage_set.all %}
+              
+                  <div class="col-md-4 p-3">
+                  
+                      <a href="{{i.img.url}}"  class="portfolio-lightbox" ><img class="card-img-top mb-5 mb-md-0" src="{{i.img.url}}" alt="..." /></a>
+      
+                  </div>
+              
+                  {% endfor %}
+                  </div>
+
+
+              </div>
+                <div class="col-md-6">
+                    <div class="small mb-1">{{product.category}}</div>
+                    <h1 class="display-5 fw-bolder">{{product.name}}</h1>
+                    <div class="fs-5 mb-5">
+                      {% if product.price_before %}
+                        <span class="text-decoration-line-through">{{product.price_before}}t</span>
+                      {% endif %}  
+                        <span>{{product.price}}t</span>
+                    </div>
+                    <p class="lead">{{product.description}}</p>
+
+                    {% for o in product.option_set.all %}
+                    <p  id="dd{{product.id}}" class="lead">{{o.op1}}|{{o.op2}}|{{o.op3}}|{{o.op4}}|{{o.op5}}</p>
+                    {% endfor %}
+                    
+                    <script>
+                      var text2 = document.getElementById("dd{{product.id}}").innerHTML; 
+                      var result2 = text2.replace(/none/gi, "");
+                      document.getElementById("dd{{product.id}}").innerHTML = result2;
+                    </script>
+                      <script>
+                        var text1 = document.getElementById("t{{product.id}}").innerHTML; 
+                        var result1 = text1.replace(/none/gi, "");
+                        document.getElementById("t{{product.id}}").innerHTML = result1;
+                      </script>
+                    
+
+
+                    <div class="d-flex">
+                      {% if user.is_authenticated %}
+                      <a onclick="reloadFunction()" data-product="{{product.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn" ><i class="bi-cart-fill me-1"></i>افزودن به سبد خرید</a>
+                      {% else %}
+                      <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب کاربری</a>
+                      {% endif %}
+
+                                                       &nbsp;
+                        <button  type="button" class="btn btn-danger" data-bs-dismiss="modal">بستن</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<script type="text/javascript" src="{% static 'assets/js/cart.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+{% for item in items %}
+
+<script>
+  var form = document.getElementById('{{item.product.name}}');
+  form.addEventListener("submit",submitHandler);
+  function submitHandler(e) {
+    var serializedData = $(this).serialize();
+    e.preventDefault();
+    $.ajax({
+        type: 'POST' , 
+        url : '{% url "getvar" %}',
+        data: serializedData  ,
+        dataType: 'json',
+        success: function (data) {
+                $("#{{item.product.name}}").trigger('reset');
+                var option = data.var
+                console.log(option)
+                document.getElementById('final{{item.product.name}}').textContent = option
+                
+
+      
+    }
+ })
+}
+
+</script>
+
+
+
+{% endfor %}
+
+
+
+{% endblock content %}
+

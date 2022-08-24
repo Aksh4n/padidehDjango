@@ -1,0 +1,16 @@
+{% if validlink %}
+  
+
+<h3>Change password</h3>
+<form style="background-color: rgba(0, 0, 0, 0.479);" method="post" >
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary btn-lg px-4 me-md-2">Change Password!</button>
+
+</form>
+{% else %}
+<p style="background-color: rgba(0, 0, 0, 0.479);">
+  The password reset link was invalid, possibly because it has already been used.
+  Please request a new password reset.
+</p>
+{% endif %}

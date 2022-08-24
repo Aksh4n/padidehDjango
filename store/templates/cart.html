@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<script type="text/javascript">
+    var user = '{{request.user}}'
+
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getToken('csrftoken')
+
+    function getCookie(name) {
+        // Split cookie string and get all individual name=value pairs in an array
+        var cookieArr = document.cookie.split(";");
+
+        // Loop through the array elements
+        for(var i = 0; i < cookieArr.length; i++) {
+            var cookiePair = cookieArr[i].split("=");
+
+            /* Removing whitespace at the beginning of the cookie name
+            and compare it with the given string */
+            if(name == cookiePair[0].trim()) {
+                // Decode the cookie value and return
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+
+        // Return null if not found
+        return null;
+    }
+    var cart = JSON.parse(getCookie('cart'))
+
+    if (cart == undefined){
+        cart = {}
+        console.log('Cart Created!', cart)
+        document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
+    }
+    console.log('Cart:', cart)
+
+</script>
+
+<script>
+    function reloadFunction2(){
+      location.reload()
+    }
+  </script>
+  
+
+
+<section  class="h-100" style="background-color: #eee;">
+    <div  class="container h-100 py-5">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-10">
+  
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-normal mb-0 text-black">لیست خریدها</h3>
+            
+            <button onclick="reloadFunction2()" class="btn btn-secondary" >به روز رسانی</button>
+            <a href="{% url 'shop' %}" class="btn btn-success">بازگشت به فروشگاه</a>
+          </div>
+          {% for item in items %}
+
+          <div class="card rounded-3 mb-4">
+            <div class="card-body p-4">
+              <div class="row d-flex justify-content-between align-items-center">
+                <div class="col-md-2 col-lg-2 col-xl-2">
+                  <img
+                    src="{{item.product.imageURL}}"
+                    class="img-fluid rounded-3" alt="{{item.product.name}}">
+                </div>
+                
+                <div class="col-md-3 col-lg-3 col-xl-3">
+                  <p class="lead fw-normal mb-2">{{item.product.name}}</p>
+                  <form id="{{item.product.name}}" action="{% url 'getvar' %}" method="post">
+                    {% csrf_token %}
+                  {% for o in item.product.option_set.all %}
+                  {% if o %}
+                  
+                      <p  id="t{{item.product.id}}">
+                        <span style="font-weight:bold ;" class="text-muted">گزینه ها </span>
+                        <select   name="option" class="form-select">
+                          <option value="{{o.op1}}">{{o.op1}}</option>
+                          <option value="{{o.op2}}">{{o.op2}}</option>
+                          <option value="{{o.op3}}">{{o.op3}}</option>
+                          <option value="{{o.op4}}">{{o.op4}}</option>
+                          <option value="{{o.op5}}">{{o.op5}}</option>
+                        </select>
+                        </p>
+                  
+                  
+                  <button id="button{{item.product.name}}"  type="submit"  data-product="{{item.product.id}}" data-action="post"  class="btn btn-primary update-cart visually-hidden">
+                    <div id="final{{item.product.name}}">{{o.op1}}</div>
+                  </button>
+                  {% endif %}
+                  {% endfor %}
+                  </form>
+
+
+                </div>
+
+
+
+                <div class="col-md-3 col-lg-3 col-xl-2">
+                  <p id="c{{item.product.id}}" >{{item.quantity}}</p>
+                  <div>
+                    <a  id="out" data-product="{{item.product.id}}" data-action="add" class="chg-quantity btn btn-outline-success mt-auto update-cart add-btn"  ><i class="bi bi-plus-circle-fill"></i></a>
+                
+                    <a  id="out" data-product="{{item.product.id}}" data-action="remove" class="chg-quantity btn btn-outline-danger mt-auto update-cart add-btn" ><i style="color:red;" class="bi bi-dash-circle-fill"></i></a>
+                  </div>
+                </div>
+                <script>
+
+                  document.addEventListener("click", function(){
+                
+                  $("#c{{item.product.id}}").load(location.href + " #c{{item.product.id}}");
+                  $("#totalpay").load(location.href + " #totalpay");
+                
+                
+                   });
+                
+                
+                </script>                            
+
+                <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                  <h5 class="mb-0">{{item.product.price|floatformat:2}}t</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+  
+
+          <div class="card">
+            <div class="card-body">
+              <button id="totalpay" style="width:100%; color:white; font-weight:bold;" type="button" class="btn btn-dark btn-lg btn-block">مجموع سبد : {{order.get_cart_total|floatformat:2}}t</button>
+            </div>
+          </div>
+        
+
+
+  
+          <div class="card">
+            <div class="card-body">
+              <a href="{% url 'checkout' %}" style="width:100%; color:white; font-weight:bold;" type="button" class="btn btn-warning btn-lg btn-block">ادامه و پرداخت</a>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="text/javascript" src="{% static 'assets/js/cart.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  
+
+
+ 
+{% endblock content %}

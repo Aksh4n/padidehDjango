@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .gradient-custom {
+/* fallback for old browsers */
+background: #f6d365;
+
+/* Chrome 10-25, Safari 5.1-6 */
+background: -webkit-linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1));
+
+/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+background: linear-gradient(to right bottom, rgba(246, 211, 101, 1), rgba(253, 160, 133, 1))
+}
+</style>
+<section class="vh-100" style="background-color: #f4f5f7;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-6 mb-4 mb-lg-0">
+          <div class="card mb-3" style="border-radius: .5rem;">
+            <div class="row g-0">
+              <div class="col-md-4 gradient-custom text-center text-white"
+                style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 140x140" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#777"/><image xlink:href="{% static 'assets/img/logo.jpg' %}"
+                  x="0" y="0" height="100%" width="100%"  preserveAspectRatio="none"/></svg>
+                      <h5>{{user.username}}</h5>
+                <p>{{user.customer.email}}</p>
+                <i class="far fa-edit mb-5"></i>
+              </div>
+              <div class="col-md-8">
+                <div class="card-body p-4">
+                  <h6>اطلاعات کاربری</h6>
+                  <hr class="mt-0 mb-4">
+                  <div class="row pt-1">
+                    <div class="col-6 mb-3">
+                      <h6>{{user.customer.name}}</h6>
+                      <p class="text-muted">{{user.customer.last}}</p>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <h6>شماره تلفن</h6>
+                      <p class="text-muted">{{user.customer.phone}}</p>
+                    </div>
+                  </div>
+                  <h6>سفارشات</h6>
+                  <hr class="mt-0 mb-4">
+                  <div class="row pt-1">
+                    <div class="col-6 mb-3">
+                      <a href="#"><h6>تاریخچه سفارش ها</h6></a>
+                      <a href="#"> <p class="text-muted">پیگیری سفارش</p></a>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <a href="#"><h6>ثبت سفارش جدید</h6></a>
+                      <p class="text-muted">تماس با پشتیبانی</p>
+                    </div>
+                  </div>
+                  <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    ثبت/تغییر مشخصات
+  </button>
+  
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+<div class="modal fade" id="exampleModal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">ثبت/تغییر اطلاعات</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="customer-form" method="post" action="{% url 'updateprofile' %}" class="">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                  <input type="text" name="name" class="form-control rounded-3" id="floatingInput" placeholder="نام">
+                  <label for="floatingInput">نام</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" name="last" class="form-control rounded-3" id="floatingPassword" placeholder="نام خانوادگی">
+                    <label for="floatingPassword">نام خانوادگی</label>
+                  </div>
+  
+    
+                <div class="form-floating mb-3">
+                  <input type="email" name="email" class="form-control rounded-3" id="floatingInput" placeholder="name@example.com">
+                  <label for="floatingInput">آدرس ایمیل</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <input type="number" name="phone" class="form-control rounded-3" id="floatingPassword" placeholder="PhoneNumber">
+                  <label for="floatingPassword">شماره همراه</label>
+                </div>
+    
+                <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">ذخیره اطلاعات</button>
+                <hr class="my-4">
+              </form>
+    
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const change = document.getElementById('customer-form');
+  change.addEventListener("submit",submitHandler);
+  function submitHandler(e) {
+      var serializedData = $(this).serialize();
+      e.preventDefault();
+      $.ajax({
+          type: 'POST' , 
+          url : '{% url "updateprofile" %}',
+          data: serializedData  ,
+          dataType: 'json',
+          success: function (data) {
+              if (data.msg === 'Success') {
+                  alert('Changes submitted!');
+                  $("#login-form").trigger('reset'); 
+                  window.location.reload();   
+        } else {
+          alert('there was an err try again')
+        }
+      }
+   })
+  }
+  
+  </script>
+
+    
+
+
+
+{% endblock content %}
