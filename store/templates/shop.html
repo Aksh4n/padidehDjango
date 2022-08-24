@@ -214,14 +214,6 @@
 </div>
 
 -->
-{% if user.is_authenticated %}
-
-<a href="{% url 'cart' %}"><button id="cartinfo" style="width: 25%;" class="btn btn-success fixed-bottom mb-2 m-1"  data-bs-toggle="modal" data-bs-target="#cart">
-  <i class="bi-cart-fill me-1"></i>
-  سبد خرید
-  <span  id="cart-total" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" style="font-size:medium ;">{{cartItems}}</span>
-</button></a>
-{% endif %}
 
 <!-- Section-->
 <style>
@@ -368,11 +360,6 @@
                   <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                    
                       <div class="text-center">
-                        {% if user.is_authenticated %}
-                        <a onclick="reloadFunction()" data-product="{{p.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn"><i class="bi-cart-fill me-1"></i>افزودن به </a>
-                        {% else %}
-                        <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب</a>
-                        {%endif%}
                         <button class="btn btn-outline-primary" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#box{{p.id}}" ><i class="bi bi-eye-fill"></i></button>
                       </div>
                   </div>
@@ -412,18 +399,12 @@
                           <!-- Product name-->
                           <h5 class="fw-bolder">{{product.name}}</h5>
                           <!-- Product reviews-->
-                          <div>{{product.info}}</div>
                           <div class="d-flex justify-content-center small text-warning mb-2">
                             {% for star in product.star_set.all %}
                               <div class="bi-star-fill"></div>
                               {% endfor %}
                           </div>
                           <!-- Product price-->
-                          {% if product.price_before %}
-                          <span class="text-decoration-line-through">{{product.price_before}}t</span>
-                        {% endif %}  
-
-                          {{product.price}}t
                       </div>
                   </div>
                   <!-- Product actions-->
@@ -432,12 +413,7 @@
                   <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                     
                       <div class="text-center">
-                        {% if user.is_authenticated %}
-                        <a onclick="reloadFunction()" data-product="{{product.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn" ><i class="bi-cart-fill me-1"></i>افزودن به</a>
-                        {% else %}
-                        <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب</a>
-                        {% endif %}
-                        <button class="btn btn-outline-primary" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#box{{product.id}}"><i class="bi bi-eye-fill"></i></button>
+                        <button class="btn btn-outline-primary" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#box{{product.id}}"><i class="bi bi-eye-fill">&nbsp;&nbsp;</i>مشاهده محصول    </button>
                       </div>
                   </div>
               </div>
@@ -479,10 +455,6 @@
                     <div class="small mb-1">{{product.category}}</div>
                     <h1 class="display-5 fw-bolder">{{product.name}}</h1>
                     <div class="fs-5 mb-5">
-                      {% if product.price_before %}
-                        <span class="text-decoration-line-through">{{product.price_before}}t</span>
-                      {% endif %}  
-                        <span>{{product.price}}t</span>
                     </div>
                     <p class="lead">{{product.description}}</p>
 
@@ -504,11 +476,6 @@
 
 
                     <div class="d-flex">
-                      {% if user.is_authenticated %}
-                      <a onclick="reloadFunction()" data-product="{{product.id}}" data-action="add" class="btn btn-outline-dark mt-auto update-cart add-btn" ><i class="bi-cart-fill me-1"></i>افزودن به سبد خرید</a>
-                      {% else %}
-                      <a data-bs-toggle="modal" class="btn btn-outline-dark mt-auto update-cart add-btn" href="#exampleModalToggle" role="button">ورود به حساب کاربری</a>
-                      {% endif %}
 
                                                        &nbsp;
                         <button  type="button" class="btn btn-danger" data-bs-dismiss="modal">بستن</button>

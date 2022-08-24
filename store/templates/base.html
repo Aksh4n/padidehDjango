@@ -12,8 +12,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
-  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+  <link href="{% static 'assets/img/logoicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/logoicon.png' %}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
@@ -50,13 +50,6 @@
           <li><a href="{% url 'shop' %}">محصولات</a></li>
           <li><a href="{% url 'blog' %}">پدیده بلاگ</a></li>
           <li><a href="{% url 'contact' %}">تماس با ما</a></li>
-          {% if user.is_authenticated %}
-          <li><a href="{% url 'logout' %}">خروج از حساب</a></li>
-          <li><a href="{% url 'profile' %}">حساب کاربری</a></li>
-
-          {% else %}
-          <li><a data-bs-toggle="modal" href="#exampleModalToggle" role="button">ورود/ثبت نام</a></li>
-          {% endif %}
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
@@ -205,8 +198,9 @@
       <div class="copyright">
         &copy; Copyright <strong><span> پدیده فوم     </span></strong>   تمامی حقوق محفوظ است
       </div>
+      
       <div class="credits">
-        ساخته شده توسط <a href="https://ashkansarshari.info/">اشکان سرشاری</a>
+       طراحی شده توسط    <a href="https://ashkansarshari.info/">اشکان سرشاری</a>
       </div>
     </div>
   </footer><!-- End  Footer -->
